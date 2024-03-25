@@ -21,3 +21,7 @@ export const updateContactSchema = Joi.object({
 
     return errors;
   });
+
+export const updateStatusContactSchema = Joi.object({
+  favorite: Joi.boolean().required(),
+});
