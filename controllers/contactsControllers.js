@@ -1,11 +1,63 @@
+import ctrlWrapper from "../decorators/ctrlWrapper.js";
+import HttpError from "../helpers/HttpError.js";
+import RequestError from "../helpers/RequestError.js";
 import contactsService from "../services/contactsServices.js";
 
-export const getAllContacts = (req, res) => {};
+const getAllContacts = async (req, res) => {
+  const result = await contactsService.getAll();
+  res.json(result);
+};
 
-export const getOneContact = (req, res) => {};
+const getOneContact = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await contactsService.getById(id);
+    res.json(result);
+  } catch (error) {
+    throw RequestError(404, "Contact not found");
+  }
+};
 
-export const deleteContact = (req, res) => {};
+const createContact = async (req, res) => {
+  const result = await contactsService.add(req.body);
+  res.status(201).json(result);
+};
 
-export const createContact = (req, res) => {};
+const updateContact = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await contactsService.updateById(id, req.body);
+    res.json(result);
+  } catch (error) {
+    throw RequestError(404, "Contact not found");
+  }
+};
 
-export const updateContact = (req, res) => {};
+const updateStatusContact = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await contactsService.updateById(id, req.body);
+    res.json(result);
+  } catch (error) {
+    throw RequestError(404, "Not Found");
+  }
+};
+
+const deleteContact = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await contactsService.deleteContact(id);
+    res.status(204).json();
+  } catch (error) {
+    throw RequestError(404, "Contact not found");
+  }
+};
+
+export default {
+  getAllContacts: ctrlWrapper(getAllContacts),
+  getOneContact: ctrlWrapper(getOneContact),
+  createContact: ctrlWrapper(createContact),
+  updateContact: ctrlWrapper(updateContact),
+  updateStatusContact: ctrlWrapper(updateStatusContact),
+  deleteContact: ctrlWrapper(deleteContact),
+};
