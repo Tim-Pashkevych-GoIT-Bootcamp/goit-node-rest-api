@@ -1,26 +1,53 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import mongoose from "mongoose";
+import "dotenv/config";
 
 import contactsRouter from "./routes/contactsRouter.js";
 
+const { DB_HOST, PORT = 3000 } = process.env;
 const app = express();
 
 app.use(morgan("tiny"));
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
 app.use("/api/contacts", contactsRouter);
 
-app.use((_, res) => {
-  res.status(404).json({ message: "Route not found" });
+app.use((_, res, __) => {
+  res.status(404).json({
+    status: "error",
+    code: 404,
+    message: "Use api on route /api/contacts",
+    data: "Not found",
+  });
 });
 
-app.use((err, req, res, next) => {
-  const { status = 500, message = "Server error" } = err;
-  res.status(status).json({ message });
+app.use((error, _, res, __) => {
+  const {
+    status = "fail",
+    code = 500,
+    message,
+    data = "Internal Server Error",
+  } = error;
+
+  res.status(code).json({
+    status,
+    code,
+    message,
+    data,
+  });
 });
 
-app.listen(3000, () => {
-  console.log("Server is running. Use our API on port: 3000");
-});
+mongoose
+  .connect(DB_HOST)
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log("Database connection successful");
+    });
+  })
+  .catch((error) => {
+    console.error(error.message);
+    process.exit(1);
+  });
