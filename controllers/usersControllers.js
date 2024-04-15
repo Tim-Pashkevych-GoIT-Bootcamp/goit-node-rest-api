@@ -79,6 +79,23 @@ const userCurrent = async (req, res) => {
   });
 };
 
+const userVerify = async (req, res) => {
+  const { verificationToken } = req.params;
+
+  const user = await usersServices.find({ verificationToken });
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  const { _id: id } = user;
+  await usersServices.update({ id }, { verificationToken: null, verify: true });
+
+  res.json({
+    message: "Verification successful",
+  });
+};
+
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: tempUpload, originalname } = req.file;
@@ -104,5 +121,6 @@ export default {
   login: ctrlWrapper(userLogin),
   logout: ctrlWrapper(userLogout),
   current: ctrlWrapper(userCurrent),
+  verify: ctrlWrapper(userVerify),
   updateAvatar: ctrlWrapper(updateAvatar),
 };
