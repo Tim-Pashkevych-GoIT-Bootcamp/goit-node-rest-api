@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import path from "path";
 import Jimp from "jimp";
+import { nanoid } from "nanoid";
 
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
@@ -18,7 +19,10 @@ const userRegister = async (req, res) => {
     throw HttpError(409, "Email in use");
   }
 
-  const newUser = await usersServices.create(req.body);
+  const newUser = await usersServices.create({
+    ...req.body,
+    verificationToken: nanoid(),
+  });
 
   res.status(201).json({
     user: {
@@ -44,6 +48,10 @@ const userLogin = async (req, res) => {
 
   if (!comparePassword) {
     throw HttpError(401, "Email or password wrong");
+  }
+
+  if (!user.verify) {
+    throw HttpError(400, "Verification has not been passed");
   }
 
   const { _id: id } = user;
@@ -88,8 +96,10 @@ const userVerify = async (req, res) => {
     throw HttpError(404, "User not found");
   }
 
-  const { _id: id } = user;
-  await usersServices.update({ id }, { verificationToken: null, verify: true });
+  await usersServices.update(user["_id"], {
+    verificationToken: null,
+    verify: true,
+  });
 
   res.json({
     message: "Verification successful",
