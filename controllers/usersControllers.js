@@ -60,7 +60,15 @@ const userLogin = async (req, res) => {
   });
 };
 
+const userLogout = async (req, res) => {
+  const { _id } = req.user;
+  await usersServices.update({ _id }, { token: "" });
+
+  res.status(204).json();
+};
+
 export default {
   register: ctrlWrapper(userRegister),
   login: ctrlWrapper(userLogin),
+  logout: ctrlWrapper(userLogout),
 };

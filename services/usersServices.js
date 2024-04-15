@@ -10,7 +10,9 @@ const create = async (data) => {
   return user;
 };
 
+const update = async (id, data) => User.findByIdAndUpdate(id, data);
+
 const validatePassword = async (password, hashPassword) =>
   bcrypt.compare(password, hashPassword);
 
-export default { find, create, validatePassword };
+export default { find, create, update, validatePassword };
