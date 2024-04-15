@@ -1,4 +1,4 @@
-import { errorMessageList } from "../constants/constants.js";
+import { errorMessageList } from "../constants/contact-constants.js";
 
 const RequestError = (code, message = errorMessageList[code]) => {
   return {

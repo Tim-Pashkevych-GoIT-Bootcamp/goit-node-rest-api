@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import "dotenv/config";
 
 import contactsRouter from "./routes/contactsRouter.js";
+import usersRouter from "./routes/usersRouter.js";
 
 const { DB_HOST, PORT = 3000 } = process.env;
 const app = express();
@@ -13,31 +14,16 @@ app.use(morgan("tiny"));
 app.use(express.json());
 app.use(cors());
 
+app.use("/api/users", usersRouter);
 app.use("/api/contacts", contactsRouter);
 
-app.use((_, res, __) => {
-  res.status(404).json({
-    status: "error",
-    code: 404,
-    message: "Use api on route /api/contacts",
-    data: "Not found",
-  });
+app.use((_, res) => {
+  res.status(404).json({ message: "Route not found" });
 });
 
 app.use((error, _, res, __) => {
-  const {
-    status = "fail",
-    code = 500,
-    message,
-    data = "Internal Server Error",
-  } = error;
-
-  res.status(code).json({
-    status,
-    code,
-    message,
-    data,
-  });
+  const { status = 500, message = "Server error" } = error;
+  res.status(status).json({ message });
 });
 
 mongoose
