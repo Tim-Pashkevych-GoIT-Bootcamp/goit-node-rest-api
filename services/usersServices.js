@@ -10,4 +10,7 @@ const create = async (data) => {
   return user;
 };
 
-export default { find, create };
+const validatePassword = async (password, hashPassword) =>
+  bcrypt.compare(password, hashPassword);
+
+export default { find, create, validatePassword };
