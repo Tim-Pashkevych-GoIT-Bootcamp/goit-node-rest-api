@@ -1,7 +1,10 @@
+import jwt from "jsonwebtoken";
+
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
-import RequestError from "../helpers/RequestError.js";
 import usersServices from "../services/usersServices.js";
+
+const { JWT_SECRET } = process.env;
 
 const userRegister = async (req, res) => {
   const { email } = req.body;
@@ -40,7 +43,13 @@ const userLogin = async (req, res) => {
     throw HttpError(401, "Email or password wrong");
   }
 
-  const token = "exampletoken";
+  const { _id: id } = user;
+  const payload = {
+    id,
+  };
+
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "23h" });
+  await usersServices.update({ _id: id }, { token });
 
   res.status(201).json({
     token,
