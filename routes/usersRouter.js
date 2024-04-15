@@ -1,6 +1,9 @@
 import express from "express";
 import validateBody from "../decorators/validateBody.js";
-import { userSignupLoginSchema } from "../schemas/usersSchemas.js";
+import {
+  userSignupLoginSchema,
+  userEmailVerificationSchema,
+} from "../schemas/usersSchemas.js";
 import usersControllers from "../controllers/usersControllers.js";
 import middlewares from "../middlewares/index.js";
 
@@ -30,5 +33,10 @@ usersRouter.patch(
 );
 
 usersRouter.get("/verify/:verificationToken", usersControllers.verify);
+usersRouter.post(
+  "/verify",
+  validateBody(userEmailVerificationSchema),
+  usersControllers.resendVerificationEmail
+);
 
 export default usersRouter;
