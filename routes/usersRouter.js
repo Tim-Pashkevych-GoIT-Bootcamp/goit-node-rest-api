@@ -20,4 +20,6 @@ usersRouter.post(
 
 usersRouter.post("/logout", authenticate, usersControllers.logout);
 
+usersRouter.get("/current", authenticate, usersControllers.current);
+
 export default usersRouter;
