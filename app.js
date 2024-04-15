@@ -3,8 +3,6 @@ import morgan from "morgan";
 import cors from "cors";
 import mongoose from "mongoose";
 import "dotenv/config";
-import multer from "multer";
-import path from "path";
 
 import contactsRouter from "./routes/contactsRouter.js";
 import usersRouter from "./routes/usersRouter.js";
@@ -16,20 +14,6 @@ app.use(morgan("tiny"));
 app.use(express.json());
 app.use(cors());
 app.use(express.static("public"));
-
-const tempDir = path.resolve("temp");
-const multerConfig = multer.diskStorage({
-  destination: tempDir,
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-
-const upload = multer({
-  storage: multerConfig,
-});
-
-const avatarsDir = path.resolve("public", "avatars");
 
 app.use("/api/users", usersRouter);
 app.use("/api/contacts", contactsRouter);
