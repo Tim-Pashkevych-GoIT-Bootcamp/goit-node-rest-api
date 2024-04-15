@@ -1,10 +1,13 @@
 import jwt from "jsonwebtoken";
+import path from "path";
+import Jimp from "jimp";
 
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
 import usersServices from "../services/usersServices.js";
 
 const { JWT_SECRET } = process.env;
+const avatarsDir = path.resolve("public", "avatars");
 
 const userRegister = async (req, res) => {
   const { email } = req.body;
@@ -76,9 +79,30 @@ const userCurrent = async (req, res) => {
   });
 };
 
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  const { path: tempUpload, originalname } = req.file;
+
+  const extention = originalname.split(".").pop();
+  const filename = `${_id}.${extention}`;
+  const resultUpload = path.resolve(avatarsDir, filename);
+
+  const avatar = await Jimp.read(tempUpload);
+  await avatar.resize(250, 250);
+  await avatar.writeAsync(resultUpload);
+
+  const avatarURL = path.resolve("avatars", filename);
+  await usersServices.update(_id, { avatarURL });
+
+  res.json({
+    avatarURL,
+  });
+};
+
 export default {
   register: ctrlWrapper(userRegister),
   login: ctrlWrapper(userLogin),
   logout: ctrlWrapper(userLogout),
   current: ctrlWrapper(userCurrent),
+  updateAvatar: ctrlWrapper(updateAvatar),
 };
